@@ -1,4 +1,4 @@
-# timetable-backpack-assist
+# Timetable Backpack Assistant
 
 ## Project setup
 ```
