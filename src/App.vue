@@ -6,7 +6,7 @@
       <v-tab ripple :key="2" :disabled="!classSelection">Plan lekcji</v-tab>
       <v-tab-item :key="0">
         <v-content>
-          <UrlSelect @success="urlSelectSuccess"/>
+          <UrlSelect @success="urlSelectSuccess" v-model="baseUrl"/>
         </v-content>
       </v-tab-item>
       <v-tab-item :key="1">
@@ -24,6 +24,7 @@
 </template>
 
 <script>
+import Cookies from 'js-cookie';
 import UrlSelect from './components/UrlSelect.vue';
 import ClassSelect from './components/ClassSelect.vue';
 import Timetable from './components/Timetable.vue';
@@ -42,10 +43,36 @@ export default {
       classSelection: null,
     };
   },
+  created() {
+    const schoolUrl = Cookies.get('school-url');
+    const classSelection = Cookies.get('class-selection');
+
+    if (schoolUrl) {
+      this.baseUrl = schoolUrl;
+
+      if (classSelection) {
+        this.classSelection = classSelection;
+        this.activeTab = 2;
+      } else {
+        this.classSelection = null;
+        this.activeTab = 1;
+      }
+    }
+  },
+  watch: {
+    classSelection(value) {
+      if (value) {
+        Cookies.set('class-selection', value);
+      } else {
+        Cookies.remove('class-selection');
+      }
+    },
+  },
   methods: {
     urlSelectSuccess(url) {
-      this.baseUrl = url;
       this.activeTab = 1;
+      Cookies.set('school-url', url);
+      this.classSelection = null;
     },
     classSelect() {
       this.activeTab = 2;

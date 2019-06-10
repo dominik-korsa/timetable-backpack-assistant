@@ -32,11 +32,16 @@
 import axios from 'axios';
 
 export default {
+  props: {
+    value: {
+      type: String,
+    },
+  },
   data() {
     return {
       valid: false,
       loading: false,
-      url: '',
+      url: this.value || '',
       rules: [
         v => this.validateUrl(v) || !v || 'Podaj poprawny adres URL',
       ],
@@ -45,6 +50,11 @@ export default {
   computed: {
     buttonDisabled() {
       return !this.valid || !this.url;
+    },
+  },
+  watch: {
+    value(value) {
+      this.url = value;
     },
   },
   methods: {
@@ -76,6 +86,7 @@ export default {
           .then((resonse) => {
             this.loading = false;
             this.$emit('success', this.url);
+            this.$emit('input', this.url);
           })
           .catch((error) => {
             this.loading = false;

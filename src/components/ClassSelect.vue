@@ -49,27 +49,22 @@ export default {
       classes: [],
     };
   },
+  created() {
+    this.update();
+  },
   methods: {
     select(value) {
       this.selection = value;
       this.$emit('select', value);
     },
-  },
-  watch: {
-    value(value) {
-      this.selection = value;
-    },
-    selection(value) {
-      this.$emit('input', value);
-    },
-    url(value) {
-      if (!value) {
+    update() {
+      if (!this.url) {
         this.classes = [];
         return;
       }
       let fullUrl;
       try {
-        fullUrl = `https://cors-anywhere.herokuapp.com/${new URL('lista.html', value)}`;
+        fullUrl = `https://cors-anywhere.herokuapp.com/${new URL('lista.html', this.url)}`;
       } catch (error) {
         console.warn(error);
         return;
@@ -83,6 +78,17 @@ export default {
         .catch((error) => {
           console.warn(error);
         });
+    },
+  },
+  watch: {
+    value(value) {
+      this.selection = value;
+    },
+    selection(value) {
+      this.$emit('input', value);
+    },
+    url() {
+      this.update();
     },
   },
 };

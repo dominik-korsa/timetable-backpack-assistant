@@ -95,6 +95,9 @@ export default {
       return lessonsArray;
     },
   },
+  created() {
+    this.update();
+  },
   data: () => ({
     hours: [],
     days: [],
