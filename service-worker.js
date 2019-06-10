@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.8c3813bf8d05a79e629fb718d203f0b1.js"
+  "precache-manifest.7c788699eaa07e833e25387fc2798dec.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "timetable-backpack-assistant"});
