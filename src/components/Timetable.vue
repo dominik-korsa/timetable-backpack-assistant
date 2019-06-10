@@ -222,11 +222,11 @@ export default {
     background-color: #fff;
 
     &.new {
-      border-left: 2px solid lawngreen;
+      border-left: 2px solid #8bc34a;
     }
 
     &.last {
-      border-right: 2px solid red;
+      border-right: 2px solid #f44336;
     }
   }
 
