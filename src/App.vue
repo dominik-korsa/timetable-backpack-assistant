@@ -44,7 +44,7 @@ export default {
     };
   },
   created() {
-    const schoolUrl = Cookies.get('school-url');
+    const schoolUrl = Cookies.get('school-url', { expires: 365 });
     const classSelection = Cookies.get('class-selection');
 
     if (schoolUrl) {
@@ -62,7 +62,7 @@ export default {
   watch: {
     classSelection(value) {
       if (value) {
-        Cookies.set('class-selection', value);
+        Cookies.set('class-selection', value, { expires: 365 });
       } else {
         Cookies.remove('class-selection');
       }
@@ -71,7 +71,7 @@ export default {
   methods: {
     urlSelectSuccess(url) {
       this.activeTab = 1;
-      Cookies.set('school-url', url);
+      Cookies.set('school-url', url, { expires: 365 });
       this.classSelection = null;
     },
     classSelect() {
