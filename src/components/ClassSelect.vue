@@ -81,8 +81,11 @@ export default {
     },
   },
   watch: {
-    value(value) {
-      this.selection = value;
+    value: {
+      handler(value) {
+        this.selection = value;
+      },
+      immediate: true,
     },
     selection(value) {
       this.$emit('input', value);
