@@ -1,5 +1,9 @@
 # Timetable Backpack Assistant
 
+Packing assistant for VULCAN OPTIVUM generated timetables. Based on [wulkanowy/timetable-parser-js](https://github.com/wulkanowy/timetable-parser-js).
+
+Deployed on [dominik-korsa.github.io/timetable-backpack-assistant](https://dominik-korsa.github.io/timetable-backpack-assistant/)
+
 ## Project setup
 ```
 npm install
