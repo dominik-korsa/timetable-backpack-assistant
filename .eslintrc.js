@@ -6,13 +6,21 @@ module.exports = {
   extends: [
     'plugin:vue/essential',
     '@vue/airbnb',
-    '@vue/typescript',
+    'vuetify',
   ],
+  plugins: [
+    'vuetify',
+  ],
+  parserOptions: {
+    parser: 'babel-eslint',
+  },
   rules: {
-    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    semi: ['error', 'always'],
+    'import/order': ['error'],
+    'vuetify/no-deprecated-classes': 'error',
+    'vuetify/grid-unknown-attributes': 'error',
+    'vuetify/no-legacy-grid': 'error',
+    'no-console': 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
   },
-  parserOptions: {
-    parser: '@typescript-eslint/parser',
-  }
 };
