@@ -74,27 +74,20 @@
         e.preventDefault();
         this.submit();
       },
-      submit () {
+      async submit () {
         if (this.$refs.form.validate() && this.url) {
           this.loading = true;
-          let fullUrl;
+
           try {
-            fullUrl = `https://cors-anywhere.herokuapp.com/${new URL('lista.html', this.url)}`;
+            const fullUrl = `https://cors-anywhere.herokuapp.com/${new URL('lista.html', this.url)}`;
+            await axios.get(fullUrl);
+            this.$emit('success', this.url);
+            this.$emit('input', this.url);
           } catch (error) {
-            this.loading = false;
             console.warn(error);
-            return;
           }
-          axios.get(fullUrl)
-            .then((resonse) => {
-              this.loading = false;
-              this.$emit('success', this.url);
-              this.$emit('input', this.url);
-            })
-            .catch((error) => {
-              this.loading = false;
-              console.warn(error);
-            });
+
+          this.loading = false;
         }
       },
     },

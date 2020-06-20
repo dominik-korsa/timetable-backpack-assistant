@@ -76,27 +76,20 @@
         this.selection = value;
         this.$emit('select', value);
       },
-      update () {
+      async update () {
         if (!this.url) {
           this.classes = [];
           return;
         }
-        let fullUrl;
+
         try {
-          fullUrl = `https://cors-anywhere.herokuapp.com/${new URL('lista.html', this.url)}`;
+          const fullUrl = `https://cors-anywhere.herokuapp.com/${new URL('lista.html', this.url)}`;
+          const response = await axios.get(fullUrl);
+          const tableList = new TimetableList(response.data);
+          this.classes = tableList.getList().classes;
         } catch (error) {
           console.warn(error);
-          return;
         }
-
-        axios.get(fullUrl)
-          .then((resonse) => {
-            const tableList = new TimetableList(resonse.data);
-            this.classes = tableList.getList().classes;
-          })
-          .catch((error) => {
-            console.warn(error);
-          });
       },
     },
   };

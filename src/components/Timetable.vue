@@ -116,32 +116,25 @@
       this.update();
     },
     methods: {
-      update () {
+      async update () {
         if (!this.url || !this.classValue) {
           this.hours = [];
           this.days = [];
           return;
         }
-        let fullUrl;
+
         try {
-          fullUrl = `https://cors-anywhere.herokuapp.com/${new URL(`plany/o${this.classValue}.html`, this.url)}`;
+          const fullUrl = `https://cors-anywhere.herokuapp.com/${new URL(`plany/o${this.classValue}.html`, this.url)}`;
+
+          const response = await axios.get(fullUrl);
+          const table = new Table(response.data);
+          this.days = table.getDays();
+          this.hours = Object.values(table.getHours());
         } catch (error) {
           console.warn(error);
-          return;
+          this.hours = [];
+          this.days = [];
         }
-
-        this.hours = [];
-        this.days = [];
-
-        axios.get(fullUrl)
-          .then((resonse) => {
-            const table = new Table(resonse.data);
-            this.days = table.getDays();
-            this.hours = Object.values(table.getHours());
-          })
-          .catch((error) => {
-            console.warn(error);
-          });
       },
       isNew (day, subject) {
         let isNew = true;
