@@ -1,12 +1,20 @@
 <template>
-  <v-main>
-    <v-progress-linear
-      :indeterminate="true"
-      class="loading"
-      height="4"
-      :active="days.length === 0"
-    />
-    <v-container>
+  <v-main
+    :class="{
+      'overflow-hidden': days.length === 0
+    }"
+  >
+    <div
+      v-if="days.length === 0"
+      class="fill-height d-flex align-center justify-center"
+    >
+      <v-progress-circular
+        indeterminate
+        color="primary"
+        :size="96"
+      />
+    </div>
+    <v-container v-else>
       <div class="grid">
         <div
           v-for="(hour, index) in hours"
@@ -117,9 +125,10 @@
     },
     methods: {
       async update () {
+        this.hours = [];
+        this.days = [];
+
         if (!this.url || !this.classValue) {
-          this.hours = [];
-          this.days = [];
           return;
         }
 
@@ -132,8 +141,6 @@
           this.hours = Object.values(table.getHours());
         } catch (error) {
           console.warn(error);
-          this.hours = [];
-          this.days = [];
         }
       },
       isNew (day, subject) {
@@ -159,10 +166,6 @@
 </script>
 
 <style lang="scss">
-  .loading {
-    margin-top: 0;
-  }
-
   .grid {
     display: grid;
     overflow: auto;

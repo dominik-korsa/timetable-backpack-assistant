@@ -4,11 +4,11 @@
       <v-form
         ref="form"
         v-model="valid"
-        @submit="formSubmit"
+        @submit.prevent="submit"
       >
         <div class="d-flex flex-column align-center py-10">
           <v-text-field
-            v-model="url"
+            v-model="input"
             outlined
             type="url"
             :rules="rules"
@@ -21,7 +21,7 @@
             color="primary"
             :disabled="buttonDisabled"
             :loading="loading"
-            @click="submit"
+            type="submit"
           >
             Połącz
           </v-btn>
@@ -32,19 +32,22 @@
 </template>
 
 <script>
-  import axios from 'axios';
-
   export default {
     props: {
       value: {
         type: String,
+        required: false,
+        default: null,
+      },
+      loading: {
+        type: Boolean,
+        required: true,
       },
     },
     data () {
       return {
         valid: false,
-        loading: false,
-        url: this.value || '',
+        input: this.value || '',
         rules: [
           (v) => this.validateUrl(v) || !v || 'Podaj poprawny adres URL',
         ],
@@ -52,12 +55,12 @@
     },
     computed: {
       buttonDisabled () {
-        return !this.valid || !this.url;
+        return !this.valid || !this.input;
       },
     },
     watch: {
       value (value) {
-        this.url = value;
+        this.input = value;
       },
     },
     methods: {
@@ -70,24 +73,9 @@
           '(\\#[-a-z\\d_]*)?$', 'i');
         return pattern.test(url);
       },
-      formSubmit (e) {
-        e.preventDefault();
-        this.submit();
-      },
-      async submit () {
-        if (this.$refs.form.validate() && this.url) {
-          this.loading = true;
-
-          try {
-            const fullUrl = `https://cors-anywhere.herokuapp.com/${new URL('lista.html', this.url)}`;
-            await axios.get(fullUrl);
-            this.$emit('success', this.url);
-            this.$emit('input', this.url);
-          } catch (error) {
-            console.warn(error);
-          }
-
-          this.loading = false;
+      submit () {
+        if (this.$refs.form.validate() && this.input && !this.loading) {
+          this.$emit('select', this.input);
         }
       },
     },

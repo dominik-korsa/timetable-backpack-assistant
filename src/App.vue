@@ -1,70 +1,104 @@
 <template>
   <v-app>
-    <v-tabs
-      v-model="activeTab"
-      centered
+    <v-main
+      v-if="initialLoading"
+      class="overflow-hidden"
     >
-      <v-tab
-        :key="0"
-        ripple
+      <div
+        class="fill-height d-flex align-center justify-center"
       >
-        Wybór szkoły
-      </v-tab>
-      <v-tab
-        :key="1"
-        ripple
-        :disabled="!baseUrl"
+        <v-progress-circular
+          indeterminate
+          color="primary"
+          :size="96"
+        />
+      </div>
+    </v-main>
+    <template v-else>
+      <v-navigation-drawer
+        v-model="navigationDrawerVisible"
+        app
+        :permanent="false"
       >
-        Wybór oddziału
-      </v-tab>
-      <v-tab
-        :key="2"
-        ripple
-        :disabled="!classSelection"
+        <v-list
+          shaped
+        >
+          <v-list-item
+            color="primary"
+            :input-value="classSelection === null"
+            @click="classSelection = null"
+          >
+            <v-list-item-icon>
+              <v-icon>
+                mdi-school
+              </v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>
+                Wybierz szkołę
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-subheader>
+            Oddział
+          </v-subheader>
+          <v-list-item
+            v-for="item in classes"
+            :key="item.value"
+            color="primary"
+            :input-value="classSelection === item.value"
+            @click="classSelection = item.value"
+          >
+            <v-list-item-content>
+              <v-list-item-title v-text="item.name" />
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-navigation-drawer>
+      <v-app-bar
+        color="white"
+        app
+        elevate-on-scroll
       >
-        Plan lekcji
-      </v-tab>
-      <v-tab-item :key="0">
-        <url-select
-          v-model="baseUrl"
-          @success="urlSelectSuccess"
-        />
-      </v-tab-item>
-      <v-tab-item :key="1">
-        <class-select
-          v-model="classSelection"
-          :url="baseUrl"
-          @select="classSelect"
-        />
-      </v-tab-item>
-      <v-tab-item :key="2">
-        <timetable
-          :class-value="classSelection"
-          :url="baseUrl"
-        />
-      </v-tab-item>
-    </v-tabs>
+        <v-app-bar-nav-icon @click="navigationDrawerVisible = !navigationDrawerVisible" />
+      </v-app-bar>
+      <url-select
+        v-if="classSelection == null"
+        :value="baseUrl"
+        :loading="classesLoading"
+        @select="urlSelect"
+      />
+      <timetable
+        v-else
+        :class-value="classSelection"
+        :url="baseUrl"
+      />
+    </template>
   </v-app>
 </template>
 
 <script>
   import Cookies from 'js-cookie';
+  import axios from 'axios';
+  import { TimetableList } from '@wulkanowy/timetable-parser';
   import UrlSelect from './components/UrlSelect.vue';
-  import ClassSelect from './components/ClassSelect.vue';
   import Timetable from './components/Timetable.vue';
 
   export default {
     name: 'App',
     components: {
       UrlSelect,
-      ClassSelect,
       Timetable,
     },
     data () {
       return {
+        navigationDrawerVisible: this.$vuetify.breakpoint.mdAndUp,
         baseUrl: null,
-        activeTab: 0,
         classSelection: null,
+        classes: null,
+        classesLoading: false,
+        initialLoading: false,
       };
     },
     watch: {
@@ -76,31 +110,57 @@
         }
       },
     },
-    created () {
+    async created () {
       const schoolUrl = Cookies.get('school-url', { expires: 365 });
       const classSelection = Cookies.get('class-selection');
 
-      if (schoolUrl) {
-        this.baseUrl = schoolUrl;
+      this.initialLoading = true;
 
-        if (classSelection) {
-          this.classSelection = classSelection;
-          this.activeTab = 2;
-        } else {
-          this.classSelection = null;
-          this.activeTab = 1;
+      if (schoolUrl) {
+        try {
+          await this.loadURL(schoolUrl);
+          if (classSelection !== undefined) {
+            this.classSelection = classSelection;
+          } else {
+            this.classSelection = null;
+          }
+        } catch (error) {
+          console.warn(error);
         }
       }
+
+      this.initialLoading = false;
     },
     methods: {
-      urlSelectSuccess (url) {
-        this.activeTab = 1;
-        Cookies.set('school-url', url, { expires: 365 });
-        this.classSelection = null;
+      async loadURL (url) {
+        this.classesLoading = true;
+        try {
+          const fullUrl = `https://cors-anywhere.herokuapp.com/${new URL('lista.html', url)}`;
+          const response = await axios.get(fullUrl);
+          const tableList = new TimetableList(response.data);
+          this.classes = tableList.getList().classes;
+          this.baseUrl = url;
+          this.classesLoading = false;
+        } catch (error) {
+          this.classesLoading = false;
+          throw error;
+        }
       },
-      classSelect () {
-        this.activeTab = 2;
+      async urlSelect (url) {
+        try {
+          await this.loadURL(url);
+          this.classSelection = null;
+          Cookies.set('school-url', url, { expires: 365 });
+        } catch (error) {
+          console.warn(error);
+        }
       },
     },
   };
 </script>
+
+<style>
+  .v-application--wrap {
+    min-height: 0;
+  }
+</style>
