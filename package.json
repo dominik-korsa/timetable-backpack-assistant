@@ -11,6 +11,7 @@
     "@wulkanowy/timetable-parser": "^1.0.8",
     "axios": "^0.19.0",
     "core-js": "^3.6.5",
+    "is-url": "^1.2.4",
     "js-cookie": "^2.2.0",
     "vue": "^2.6.11",
     "vue-class-component": "^7.1.0",

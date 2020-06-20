@@ -32,6 +32,8 @@
 </template>
 
 <script>
+  import isUrl from 'is-url';
+
   export default {
     props: {
       value: {
@@ -49,7 +51,7 @@
         valid: false,
         input: this.value || '',
         rules: [
-          (v) => this.validateUrl(v) || !v || 'Podaj poprawny adres URL',
+          (v) => isUrl(v) || !v || 'Podaj poprawny adres URL',
         ],
       };
     },
@@ -64,15 +66,6 @@
       },
     },
     methods: {
-      validateUrl (url) {
-        const pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
-          '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|' + // domain name
-          '((\\d{1,3}\\.){3}\\d{1,3}))' + // ip (v4) address
-          '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port
-          '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-          '(\\#[-a-z\\d_]*)?$', 'i');
-        return pattern.test(url);
-      },
       submit () {
         if (this.$refs.form.validate() && this.input && !this.loading) {
           this.$emit('select', this.input);
