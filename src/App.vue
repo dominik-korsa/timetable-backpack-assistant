@@ -1,8 +1,12 @@
 <template>
-  <v-app>
+  <v-app
+    :class="{
+      'auto-height': !initialLoading
+    }"
+  >
     <v-main
       v-if="initialLoading"
-      class="overflow-hidden"
+      class="overflow-hidden fill-height"
     >
       <div
         class="fill-height d-flex align-center justify-center"
@@ -160,7 +164,7 @@
 </script>
 
 <style>
-  .v-application--wrap {
+  .auto-height .v-application--wrap {
     min-height: 0;
   }
 </style>
