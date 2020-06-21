@@ -15,39 +15,31 @@
       />
     </div>
     <v-container v-else>
-      <div class="grid">
+      <div
+        id="grid"
+        v-scroll:#grid="onGridScroll"
+      >
         <v-sheet
           v-for="(hour, index) in hours"
-          :key="`${index}-hour-to`"
+          :key="`${index}-time`"
           outlined
-          class="time hour-to text-subheading"
+          :elevation="timeElevation"
+          class="time text-subheading stick-left"
           :style="{
             'grid-row': index + 1
           }"
         >
-          <div>{{ hour.timeTo }}</div>
-        </v-sheet>
-        <v-sheet
-          v-for="(hour, index) in hours"
-          :key="`${index}-hour-from`"
-          outlined
-          class="time hour-from text-subheading"
-          :style="{
-            'grid-row': index + 1
-          }"
-        >
-          <div>{{ hour.timeFrom }}</div>
-        </v-sheet>
-        <v-sheet
-          v-for="(hour, index) in hours"
-          :key="`${index}-hour-number`"
-          outlined
-          class="time hour-number text-subheading stick-left"
-          :style="{
-            'grid-row': index + 1
-          }"
-        >
-          <div>{{ hour.number }}</div>
+          <div class="time__part time__number">
+            {{ hour.number }}
+          </div>
+          <v-divider vertical />
+          <div class="time__part time__from">
+            {{ hour.timeFrom }}
+          </div>
+          <v-divider vertical />
+          <div class="time__part time__to">
+            {{ hour.timeTo }}
+          </div>
         </v-sheet>
         <div
           v-for="(lesson, index) in lessonsArray"
@@ -55,7 +47,7 @@
           class="lesson"
           :style="{
             'grid-row': lesson.hourIndex + 1,
-            'grid-column': lesson.dayIndex + 4
+            'grid-column': lesson.dayIndex + 2
           }"
         >
           <v-sheet
@@ -85,8 +77,12 @@
 <script>
   import axios from 'axios';
   import { Table } from '@wulkanowy/timetable-parser';
+  import { Scroll } from 'vuetify/lib/directives';
 
   export default {
+    directives: {
+      Scroll,
+    },
     props: {
       url: {
         type: String,
@@ -98,6 +94,7 @@
     data: () => ({
       hours: [],
       days: [],
+      gridOffsetLeft: 0,
     }),
     computed: {
       lessonsArray () {
@@ -114,6 +111,9 @@
         });
 
         return lessonsArray;
+      },
+      timeElevation () {
+        return Math.floor(Math.min(1, this.gridOffsetLeft / 8) * (this.$vuetify.theme.dark ? 24 : 1));
       },
     },
     watch: {
@@ -165,15 +165,18 @@
         });
         return isLast;
       },
+      onGridScroll (event) {
+        this.gridOffsetLeft = event.target.scrollLeft;
+      },
     },
   };
 </script>
 
 <style lang="scss">
-  .grid {
+  #grid {
     display: grid;
     overflow: auto;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: auto;
     grid-auto-columns: minmax(auto, 1fr);
     grid-auto-rows: auto;
   }
@@ -186,27 +189,16 @@
   .time {
     margin: 4px;
     border-radius: 4px;
-    display: flex;
-    justify-content: center;
+    display: grid;
     align-items: center;
-    padding: 4px;
     box-sizing: border-box;
+    grid-column: 1;
+    grid-template-columns: 1fr auto 2fr auto 2fr;
 
-    div {
+    &__part {
+      padding: 3px 6px;
       text-align: center;
     }
-  }
-
-  .hour-number {
-    grid-column: 1;
-  }
-
-  .hour-from {
-    grid-column: 2;
-  }
-
-  .hour-to {
-    grid-column: 3;
   }
 
   .lesson {
