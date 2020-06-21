@@ -167,6 +167,7 @@
           await this.loadURL(url);
           this.classSelection = null;
           Cookies.set('school-url', url, { expires: 365 });
+          this.navigationDrawerVisible = true;
         } catch (error) {
           console.warn(error);
         }
