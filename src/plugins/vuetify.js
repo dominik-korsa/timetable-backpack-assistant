@@ -9,6 +9,20 @@ const vuetify = new Vuetify({
     locales: [pl],
     current: 'pl',
   },
+  theme: {
+    dark: false,
+    themes: {
+      options: {
+        customProperties: true,
+      },
+      light: {
+        appbar: '#fff',
+      },
+      dark: {
+        appbar: '#121212',
+      },
+    },
+  },
 });
 
 export default vuetify;

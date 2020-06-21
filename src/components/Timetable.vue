@@ -16,36 +16,39 @@
     </div>
     <v-container v-else>
       <div class="grid">
-        <div
+        <v-sheet
           v-for="(hour, index) in hours"
           :key="`${index}-hour-to`"
-          class="time hour-to elevation-1 subheading"
+          outlined
+          class="time hour-to text-subheading"
           :style="{
             'grid-row': index + 1
           }"
         >
           <div>{{ hour.timeTo }}</div>
-        </div>
-        <div
+        </v-sheet>
+        <v-sheet
           v-for="(hour, index) in hours"
           :key="`${index}-hour-from`"
-          class="time hour-from elevation-1 subheading"
+          outlined
+          class="time hour-from text-subheading"
           :style="{
             'grid-row': index + 1
           }"
         >
           <div>{{ hour.timeFrom }}</div>
-        </div>
-        <div
+        </v-sheet>
+        <v-sheet
           v-for="(hour, index) in hours"
           :key="`${index}-hour-number`"
-          class="time hour-number elevation-1 subheading stick-left"
+          outlined
+          class="time hour-number text-subheading stick-left"
           :style="{
             'grid-row': index + 1
           }"
         >
           <div>{{ hour.number }}</div>
-        </div>
+        </v-sheet>
         <div
           v-for="(lesson, index) in lessonsArray"
           :key="`${index}-lesson`"
@@ -55,10 +58,11 @@
             'grid-column': lesson.dayIndex + 4
           }"
         >
-          <div
+          <v-sheet
             v-for="(group, groupIndex) in lesson.groups"
             :key="`${index}-${groupIndex}-lesson-group`"
-            class="group elevation-1"
+            class="group"
+            outlined
             :class="{
               new: isNew(lesson.dayIndex, group.subject),
               last: isLast(lesson.dayIndex, group.subject),
@@ -71,7 +75,7 @@
               <span class="text-body-2">{{ group.room }}</span>
               <span class="text-body-2 font-weight-light"> {{ group.groupName }}</span>
             </div>
-          </div>
+          </v-sheet>
         </div>
       </div>
     </v-container>
@@ -176,17 +180,17 @@
 
   .stick-left {
     position: sticky;
-    left: 8px;
+    left: 4px;
   }
 
   .time {
-    margin: 4px 8px;
+    margin: 4px;
     border-radius: 4px;
-    background-color: #fff;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 4px;
+    box-sizing: border-box;
 
     div {
       text-align: center;
@@ -208,6 +212,7 @@
   .lesson {
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
   }
 
   .group {
@@ -216,11 +221,11 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin: 4px 8px;
+    margin: 4px;
     min-height: 48px;
     border-radius: 4px;
     padding: 4px 8px;
-    background-color: #fff;
+    box-sizing: border-box;
 
     &.new {
       border-left: 2px solid #8bc34a;

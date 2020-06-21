@@ -1,7 +1,7 @@
 <template>
   <v-app
     :class="{
-      'auto-height': !initialLoading
+      'auto-height': !initialLoading && false
     }"
   >
     <v-main
@@ -61,11 +61,20 @@
         </v-list>
       </v-navigation-drawer>
       <v-app-bar
-        color="white"
+        color="appbar"
         app
         elevate-on-scroll
       >
         <v-app-bar-nav-icon @click="navigationDrawerVisible = !navigationDrawerVisible" />
+        <v-spacer />
+        <v-btn
+          icon
+          @click="toggleTheme"
+        >
+          <v-icon>
+            mdi-theme-light-dark
+          </v-icon>
+        </v-btn>
       </v-app-bar>
       <url-select
         v-if="classSelection == null"
@@ -159,12 +168,15 @@
           console.warn(error);
         }
       },
+      toggleTheme () {
+        this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+      },
     },
   };
 </script>
 
-<style>
-  .auto-height .v-application--wrap {
-    min-height: 0;
-  }
-</style>
+<!--<style>-->
+<!--  .auto-height .v-application&#45;&#45;wrap {-->
+<!--    min-height: 0;-->
+<!--  }-->
+<!--</style>-->
