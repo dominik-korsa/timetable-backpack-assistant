@@ -19,7 +19,6 @@
         v-model="navigationDrawerVisible"
         app
         :permanent="false"
-        class="pb-16"
       >
         <v-list
           shaped
@@ -62,6 +61,7 @@
             </v-list-item-content>
           </v-list-item>
         </v-list>
+        <div class="vertical-spacer--small" />
       </v-navigation-drawer>
       <v-app-bar
         color="appbar"
@@ -178,3 +178,9 @@
     },
   };
 </script>
+
+<style>
+  .vertical-spacer--small {
+    height: 64px;
+  }
+</style>
