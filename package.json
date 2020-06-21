@@ -13,6 +13,7 @@
     "core-js": "^3.6.5",
     "is-url": "^1.2.4",
     "js-cookie": "^2.2.0",
+    "url-join": "^4.0.1",
     "vue": "^2.6.11",
     "vue-class-component": "^7.1.0",
     "vuetify": "^2.3.1"
