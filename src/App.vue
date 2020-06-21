@@ -44,6 +44,12 @@
           <v-subheader>
             Oddział
           </v-subheader>
+          <div
+            v-if="classes === null"
+            class="body-1 px-4 py-2 text-center text--secondary"
+          >
+            Nie wybrałeś szkoły
+          </div>
           <v-list-item
             v-for="item in classes"
             :key="item.value"
