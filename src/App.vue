@@ -1,9 +1,5 @@
 <template>
-  <v-app
-    :class="{
-      'auto-height': !initialLoading && false
-    }"
-  >
+  <v-app>
     <v-main
       v-if="initialLoading"
       class="overflow-hidden fill-height"
@@ -125,7 +121,7 @@
       },
     },
     async created () {
-      const schoolUrl = Cookies.get('school-url', { expires: 365 });
+      const schoolUrl = Cookies.get('school-url');
       const classSelection = Cookies.get('class-selection');
 
       this.initialLoading = true;
@@ -171,13 +167,8 @@
       },
       toggleTheme () {
         this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+        Cookies.set('theme', this.$vuetify.theme.dark ? 'dark' : 'light', { expires: 365 });
       },
     },
   };
 </script>
-
-<!--<style>-->
-<!--  .auto-height .v-application&#45;&#45;wrap {-->
-<!--    min-height: 0;-->
-<!--  }-->
-<!--</style>-->
