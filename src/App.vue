@@ -23,6 +23,7 @@
         v-model="navigationDrawerVisible"
         app
         :permanent="false"
+        class="pb-16"
       >
         <v-list
           shaped
