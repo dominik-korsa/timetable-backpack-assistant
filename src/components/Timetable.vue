@@ -117,7 +117,10 @@
         return lessonsArray;
       },
       timeElevation () {
-        return Math.floor(Math.min(1, this.gridOffsetLeft / 8) * (this.$vuetify.theme.dark ? 24 : 1));
+        if (this.gridOffsetLeft > 0) {
+          return this.$vuetify.theme.dark ? 24 : 1;
+        }
+        return 0;
       },
     },
     watch: {
@@ -199,6 +202,7 @@
     grid-column: 1;
     grid-template-columns: 1fr auto 2fr;
     grid-template-rows: 1fr auto 1fr;
+    transition: box-shadow 300ms;
 
     &__part {
       padding: 0 6px;
