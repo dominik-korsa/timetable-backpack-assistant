@@ -32,11 +32,14 @@
           <div class="time__part time__number">
             {{ hour.number }}
           </div>
-          <v-divider vertical />
+          <v-divider
+            vertical
+            class="time__divider-1"
+          />
           <div class="time__part time__from">
             {{ hour.timeFrom }}
           </div>
-          <v-divider vertical />
+          <v-divider class="time__divider-2" />
           <div class="time__part time__to">
             {{ hour.timeTo }}
           </div>
@@ -194,11 +197,37 @@
     align-items: center;
     box-sizing: border-box;
     grid-column: 1;
-    grid-template-columns: 1fr auto 2fr auto 2fr;
+    grid-template-columns: 1fr auto 2fr;
+    grid-template-rows: 1fr auto 1fr;
 
     &__part {
-      padding: 3px 6px;
+      padding: 0 6px;
       text-align: center;
+    }
+
+    &__number {
+      grid-column: 1;
+      grid-row: 1/4;
+    }
+
+    &__divider-1 {
+      grid-column: 2;
+      grid-row: 1/4;
+    }
+
+    &__divider-2 {
+      grid-column: 3;
+      grid-row: 2;
+    }
+
+    &__from {
+      grid-column: 3;
+      grid-row: 1;
+    }
+
+    &__to {
+      grid-column: 3;
+      grid-row: 3;
     }
   }
 
