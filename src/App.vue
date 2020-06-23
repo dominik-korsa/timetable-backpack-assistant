@@ -69,6 +69,15 @@
         elevate-on-scroll
       >
         <v-app-bar-nav-icon @click="navigationDrawerVisible = !navigationDrawerVisible" />
+        <v-toolbar-title
+          v-if="classSelection === null"
+        >
+          Wybierz szkołę
+        </v-toolbar-title>
+        <v-toolbar-title
+          v-else
+          v-text="timetableTitle"
+        />
         <v-spacer />
         <v-btn
           icon
@@ -117,6 +126,12 @@
         classesLoading: false,
         initialLoading: false,
       };
+    },
+    computed: {
+      timetableTitle () {
+        if (this.classSelection === null || this.classes === null) return null;
+        return this.classes.find((item) => item.value === this.classSelection).name;
+      },
     },
     watch: {
       classSelection (value) {
