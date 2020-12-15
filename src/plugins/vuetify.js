@@ -1,11 +1,8 @@
 import Vue from 'vue';
 import Vuetify from 'vuetify/lib';
 import pl from 'vuetify/es5/locale/pl';
-import Cookies from 'js-cookie';
 
 Vue.use(Vuetify);
-
-const lastTheme = Cookies.get('theme');
 
 const vuetify = new Vuetify({
   lang: {
@@ -13,7 +10,6 @@ const vuetify = new Vuetify({
     current: 'pl',
   },
   theme: {
-    dark: lastTheme === 'dark',
     themes: {
       options: {
         customProperties: true,

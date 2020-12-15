@@ -1,11 +1,11 @@
 <template>
   <v-main
     :class="{
-      'overflow-hidden': days.length === 0
+      'overflow-hidden': days === null
     }"
   >
     <div
-      v-if="days.length === 0"
+      v-if="days === null"
       class="fill-height d-flex align-center justify-center"
     >
       <v-progress-circular
@@ -78,7 +78,7 @@
 </template>
 
 <script>
-  import axios from 'axios';
+  import ky from 'ky';
   import { Table } from '@wulkanowy/timetable-parser';
   import { Scroll } from 'vuetify/lib/directives';
 
@@ -86,21 +86,15 @@
     directives: {
       Scroll,
     },
-    props: {
-      url: {
-        type: String,
-      },
-      classValue: {
-        type: String,
-      },
-    },
     data: () => ({
-      hours: [],
-      days: [],
+      hours: null,
+      days: null,
       gridOffsetLeft: 0,
     }),
     computed: {
       lessonsArray () {
+        if (this.days === null) return null;
+
         const lessonsArray = [];
 
         this.days.forEach((day, dayIndex) => {
@@ -121,32 +115,28 @@
         }
         return 0;
       },
+      classUrl () {
+        return new URL(`plany/o${this.$route.params.class}.html`, this.$route.params.url).toString();
+      },
     },
     watch: {
-      url () {
-        this.update();
+      classUrl: {
+        immediate: true,
+        handler (value) {
+          this.update(value);
+        },
       },
-      classValue () {
-        this.update();
-      },
-    },
-    created () {
-      this.update();
     },
     methods: {
-      async update () {
+      async update (classUrl) {
         this.hours = [];
         this.days = [];
 
-        if (!this.url || !this.classValue) {
-          return;
-        }
-
         try {
-          const fullUrl = `https://cors-anywhere.herokuapp.com/${new URL(`plany/o${this.classValue}.html`, this.url).toString()}`;
-
-          const response = await axios.get(fullUrl);
-          const table = new Table(response.data);
+          const fullUrl = `https://cors-anywhere.herokuapp.com/${classUrl}`;
+          const response = await ky.get(fullUrl);
+          const body = await response.text();
+          const table = new Table(body);
           this.days = table.getDays();
           this.hours = Object.values(table.getHours());
         } catch (error) {
