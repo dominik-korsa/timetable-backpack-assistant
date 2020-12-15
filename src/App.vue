@@ -107,7 +107,6 @@
   import Cookies from 'js-cookie';
   import axios from 'axios';
   import { TimetableList } from '@wulkanowy/timetable-parser';
-  import urlJoin from 'url-join';
   import UrlSelect from './components/UrlSelect.vue';
   import Timetable from './components/Timetable.vue';
 
@@ -167,7 +166,7 @@
       async loadURL (url) {
         this.classesLoading = true;
         try {
-          const fullUrl = `https://cors-anywhere.herokuapp.com/${urlJoin(url, 'lista.html')}`;
+          const fullUrl = `https://cors-anywhere.herokuapp.com/${new URL('lista.html', url).toString()}`;
           const response = await axios.get(fullUrl);
           const tableList = new TimetableList(response.data);
           this.classes = tableList.getList().classes;

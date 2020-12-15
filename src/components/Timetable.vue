@@ -81,7 +81,6 @@
   import axios from 'axios';
   import { Table } from '@wulkanowy/timetable-parser';
   import { Scroll } from 'vuetify/lib/directives';
-  import urlJoin from 'url-join';
 
   export default {
     directives: {
@@ -144,7 +143,7 @@
         }
 
         try {
-          const fullUrl = `https://cors-anywhere.herokuapp.com/${urlJoin(this.url, `plany/o${this.classValue}.html`)}`;
+          const fullUrl = `https://cors-anywhere.herokuapp.com/${new URL(`plany/o${this.classValue}.html`, this.url).toString()}`;
 
           const response = await axios.get(fullUrl);
           const table = new Table(response.data);

@@ -14,7 +14,7 @@ deploy:
 
 branches:
   except:
-    master
+    - master
 
 script:
   - npm run lint
