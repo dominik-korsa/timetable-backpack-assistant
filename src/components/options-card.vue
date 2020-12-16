@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card :outlined="$vuetify.theme.dark">
     <v-card-title>
       Opcje
     </v-card-title>

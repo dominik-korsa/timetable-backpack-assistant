@@ -74,7 +74,7 @@
             outlined
             to="/v-lo"
             class="mt-8 mx-auto"
-            max-width="250"
+            :max-width="$vuetify.breakpoint.xsOnly ? 200 : 250"
             dark
             v-on="on"
           >
@@ -84,7 +84,10 @@
             <v-img src="@/assets/v-lo.png" />
           </v-card>
         </template>
-        <v-card max-width="350">
+        <v-card
+          :max-width="$vuetify.breakpoint.xsOnly ? 300 : 350"
+          :outlined="$vuetify.theme.dark"
+        >
           <v-card-text>
             <p>Plan V Liceum Ogólnokształcącego im. Augusta Witkowskiego w Krakowie</p>
             <a href="https://github.com/Cloud11665/sabat.dev">API rozkładu zajęć</a>
@@ -92,6 +95,20 @@
           </v-card-text>
         </v-card>
       </v-menu>
+      <div class="d-flex align-center flex-column">
+        <v-btn
+          outlined
+          rounded
+          class="mt-10"
+          href="https://github.com/dominik-korsa/timetable-backpack-assistant"
+          :small="$vuetify.breakpoint.xsOnly"
+        >
+          <v-icon left>
+            mdi-github
+          </v-icon>
+          <span>Source code</span>
+        </v-btn>
+      </div>
     </v-container>
   </v-main>
 </template>

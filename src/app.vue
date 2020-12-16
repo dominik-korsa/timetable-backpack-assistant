@@ -62,7 +62,22 @@
         v-text="timetableTitle"
       />
       <v-spacer />
+      <v-dialog
+        v-if="$vuetify.breakpoint.smAndDown"
+        max-width="600"
+      >
+        <template #activator="{ on }">
+          <v-btn
+            icon
+            v-on="on"
+          >
+            <v-icon>mdi-cog</v-icon>
+          </v-btn>
+        </template>
+        <options-card />
+      </v-dialog>
       <v-menu
+        v-else
         min-width="350"
         offset-y
         nudge-bottom="12"
@@ -73,9 +88,7 @@
             icon
             v-on="on"
           >
-            <v-icon>
-              mdi-cog
-            </v-icon>
+            <v-icon>mdi-cog</v-icon>
           </v-btn>
         </template>
         <options-card />
