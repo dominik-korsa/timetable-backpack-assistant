@@ -66,7 +66,7 @@
               :day-index="lesson.dayIndex"
             >
               <template #activator="{ on }">
-                <v-card
+                <div
                   class="group"
                   :class="{
                     'first-item': groupIndex === 0,
@@ -110,7 +110,7 @@
                       class="text-body-2 font-weight-light mx-1"
                     >{{ group.teacher }}</span>
                   </div>
-                </v-card>
+                </div>
               </template>
             </group-info>
           </div>
