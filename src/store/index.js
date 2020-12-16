@@ -15,6 +15,7 @@ export default new Vuex.Store({
     storage: {
       dark: false,
       history: [],
+      subjectColors: false,
     },
     classes: null,
   },
@@ -27,6 +28,9 @@ export default new Vuex.Store({
     },
     setClasses (state, classes) {
       state.classes = classes;
+    },
+    setSubjectColors (state, enable) {
+      state.storage.subjectColors = enable;
     },
   },
   actions: {

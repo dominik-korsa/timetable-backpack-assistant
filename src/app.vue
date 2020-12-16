@@ -62,14 +62,24 @@
         v-text="timetableTitle"
       />
       <v-spacer />
-      <v-btn
-        icon
-        @click="toggleTheme"
+      <v-menu
+        min-width="350"
+        offset-y
+        nudge-bottom="12"
+        :close-on-content-click="false"
       >
-        <v-icon>
-          mdi-theme-light-dark
-        </v-icon>
-      </v-btn>
+        <template #activator="{ on }">
+          <v-btn
+            icon
+            v-on="on"
+          >
+            <v-icon>
+              mdi-cog
+            </v-icon>
+          </v-btn>
+        </template>
+        <options-card />
+      </v-menu>
     </v-app-bar>
     <school-picker-view
       v-if="selection === null || selection.class == null || schoolLoading"
@@ -87,12 +97,14 @@
   import { Timetable, TimetableList } from '@wulkanowy/timetable-parser';
   import SchoolPickerView from '@/views/school-picker.vue';
   import TimetableView from '@/views/timetable.vue';
+  import OptionsCard from '@/components/options-card.vue';
 
   export default {
     name: 'App',
     components: {
       SchoolPickerView,
       TimetableView,
+      OptionsCard,
     },
     data () {
       return {
@@ -217,10 +229,6 @@
           this.schoolLoading = false;
           throw error;
         }
-      },
-      toggleTheme () {
-        this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
-        this.$store.commit('setDark', this.$vuetify.theme.dark);
       },
     },
   };

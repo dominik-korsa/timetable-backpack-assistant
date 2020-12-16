@@ -69,7 +69,23 @@
                 last: isLast(lesson.dayIndex, group.subject, group.groupName),
               }"
             >
-              <div class="text-body-1">
+              <v-sheet
+                v-if="group.color && $store.state.storage.subjectColors"
+                outlined
+                rounded
+                class="overflow-hidden"
+              >
+                <div
+                  class="px-1 text-body-1 group__colored-subject"
+                  :style="`--bg-color: ${group.color.bg}; --text-color: ${group.color.text}`"
+                >
+                  {{ group.subject }}
+                </div>
+              </v-sheet>
+              <div
+                v-else
+                class="text-body-1"
+              >
                 {{ group.subject }}
               </div>
               <div>
@@ -197,6 +213,10 @@
               subject: respLesson.subject,
               teacher: respLesson.teacher,
               groupName: respLesson.group || undefined,
+              color: {
+                bg: respLesson.color,
+                text: this.textColor(respLesson.color),
+              },
             });
           }
         });
@@ -222,6 +242,19 @@
       },
       onGridScroll (event) {
         this.gridOffsetLeft = event.target.scrollLeft;
+      },
+      textColor (bgColor) {
+        const color = (bgColor.charAt(0) === '#') ? bgColor.substring(1, 7) : bgColor;
+        const r = parseInt(color.substring(0, 2), 16); // hexToR
+        const g = parseInt(color.substring(2, 4), 16); // hexToG
+        const b = parseInt(color.substring(4, 6), 16); // hexToB
+        const uiColors = [r / 255, g / 255, b / 255];
+        const c = uiColors.map((col) => {
+          if (col <= 0.03928) return col / 12.92;
+          return ((col + 0.055) / 1.055) ** 2.4;
+        });
+        const L = (0.2126 * c[0]) + (0.7152 * c[1]) + (0.0722 * c[2]);
+        return (L > 0.179) ? '#000' : '#fff';
       },
     },
   };
@@ -298,6 +331,11 @@
     min-height: 48px;
     padding: 4px 8px;
     box-sizing: border-box;
+
+    .group__colored-subject {
+      background-color: var(--bg-color);
+      color:  var(--text-color);
+    }
 
     &.new {
       border-left: 2px solid #8bc34a;
