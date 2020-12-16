@@ -57,7 +57,7 @@
           <div
             v-for="(group, groupIndex) in lesson.groups"
             :key="`${index}-${groupIndex}-lesson-group`"
-            class="d-flex flex-column grow"
+            class="d-flex flex-column grow text-center"
           >
             <v-divider v-if="groupIndex > 0" />
             <div
@@ -65,8 +65,8 @@
               :class="{
                 'first-item': groupIndex === 0,
                 'last-item': groupIndex === lesson.groups.length - 1,
-                new: isNew(lesson.dayIndex, group.subject),
-                last: isLast(lesson.dayIndex, group.subject),
+                new: isNew(lesson.dayIndex, group.subject, group.groupName),
+                last: isLast(lesson.dayIndex, group.subject, group.groupName),
               }"
             >
               <div class="text-body-1">
@@ -88,10 +88,30 @@
   import ky from 'ky';
   import { Table } from '@wulkanowy/timetable-parser';
   import { Scroll } from 'vuetify/lib/directives';
+  import _ from 'lodash';
+
+  const vLoHours = [
+    { number: 0, timeFrom: '7:10', timeTo: '7:55' },
+    { number: 1, timeFrom: '8:00', timeTo: '8:45' },
+    { number: 2, timeFrom: '9:00', timeTo: '9:45' },
+    { number: 3, timeFrom: '10:00', timeTo: '10:45' },
+    { number: 4, timeFrom: '11:00', timeTo: '11:45' },
+    { number: 5, timeFrom: '12:00', timeTo: '12:45' },
+    { number: 6, timeFrom: '13:00', timeTo: '13:45' },
+    { number: 7, timeFrom: '14:00', timeTo: '14:45' },
+    { number: 8, timeFrom: '14:50', timeTo: '15:35' },
+    { number: 9, timeFrom: '15:40', timeTo: '16:25' },
+    { number: 10, timeFrom: '16:30', timeTo: '17:15' },
+  ];
 
   export default {
     directives: {
       Scroll,
+    },
+    props: {
+      selection: {
+        type: Object,
+      },
     },
     data: () => ({
       hours: null,
@@ -124,24 +144,23 @@
         }
         return 0;
       },
-      classUrl () {
-        return new URL(`plany/o${this.$route.params.class}.html`, this.$route.params.url).toString();
-      },
     },
     watch: {
-      classUrl: {
+      selection: {
         immediate: true,
         handler (value) {
-          this.update(value);
+          if (value.type === 'optivum') this.updateOptivum(value);
+          else if (value.type === 'v-lo') this.updateVLo(value);
         },
       },
     },
     methods: {
-      async update (classUrl) {
-        this.hours = [];
-        this.days = [];
+      async updateOptivum (selection) {
+        this.hours = null;
+        this.days = null;
 
         try {
+          const classUrl = new URL(`plany/o${selection.class}.html`, selection.url).toString();
           const fullUrl = `https://cors-anywhere.herokuapp.com/${classUrl}`;
           const response = await ky.get(fullUrl);
           const body = await response.text();
@@ -152,21 +171,55 @@
           console.warn(error);
         }
       },
-      isNew (day, subject) {
-        let isNew = true;
-        this.days[(day + 4) % 5].forEach((lesson) => {
-          if (lesson.findIndex((group) => group.subject === subject) !== -1) {
-            isNew = false;
+      async updateVLo (selection) {
+        this.hours = null;
+        this.days = null;
+
+        try {
+          const fullUrl = `https://sabat.dev/api/tta?c=${selection.class}`;
+          const response = await ky.get(fullUrl);
+          const data = await response.json();
+
+          // TODO: Integrate API when ready
+          // https://github.com/Cloud11665/sabat.dev/issues/5
+          this.hours = vLoHours;
+          this.days = data.resp.map(this.mapVLoDay);
+          console.log(data);
+        } catch (error) {
+          console.warn(error);
+        }
+      },
+      mapVLoDay (respDay) {
+        const lessons = _.times(vLoHours.length, () => []);
+        console.log(respDay.flat());
+        respDay.flat().forEach((respLesson) => {
+          for (let i = 0; i < respLesson.duration; i += 1) {
+            console.log(respLesson.time_index + i, respLesson);
+            lessons[respLesson.time_index + i].push({
+              room: respLesson.classroom,
+              subject: respLesson.subject,
+              teacher: respLesson.teacher,
+              groupName: respLesson.group || undefined,
+            });
           }
+        });
+        return lessons;
+      },
+      isNew (day, subject, groupName) {
+        let isNew = true;
+        this.days[(day + this.days.length - 1) % this.days.length].forEach((lesson) => {
+          if (lesson.findIndex(
+            (group) => group.subject === subject && (!group.groupName || !groupName || group.groupName === groupName),
+          ) !== -1) isNew = false;
         });
         return isNew;
       },
-      isLast (day, subject) {
+      isLast (day, subject, groupName) {
         let isLast = true;
-        this.days[(day + 1) % 5].forEach((lesson) => {
-          if (lesson.findIndex((group) => group.subject === subject) !== -1) {
-            isLast = false;
-          }
+        this.days[(day + 1) % this.days.length].forEach((lesson) => {
+          if (lesson.findIndex(
+            (group) => group.subject === subject && (!group.groupName || !groupName || group.groupName === groupName),
+          ) !== -1) isLast = false;
         });
         return isLast;
       },

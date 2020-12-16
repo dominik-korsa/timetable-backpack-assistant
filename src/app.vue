@@ -53,7 +53,7 @@
     >
       <v-app-bar-nav-icon @click="navigationDrawerVisible = !navigationDrawerVisible" />
       <v-toolbar-title
-        v-if="classSelection === null"
+        v-if="selection === null"
       >
         Wybierz szkołę
       </v-toolbar-title>
@@ -72,10 +72,13 @@
       </v-btn>
     </v-app-bar>
     <school-picker-view
-      v-if="classSelection == null || schoolLoading"
+      v-if="selection === null || selection.class == null || schoolLoading"
       :loading="schoolLoading"
     />
-    <timetable-view v-else />
+    <timetable-view
+      v-else
+      :selection="selection"
+    />
   </v-app>
 </template>
 
@@ -99,24 +102,48 @@
     },
     computed: {
       timetableTitle () {
-        if (this.classSelection === null || this.$store.state.classes === null) return 'Plan lekcji';
-        return this.$store.state.classes.find((item) => item.value === this.classSelection).name;
-      },
-      classSelection () {
-        return this.$route.params.class || null;
+        if (this.selection.class === null || this.$store.state.classes === null) return 'Plan lekcji';
+        return this.$store.state.classes.find((item) => item.value === this.selection.class).name;
       },
       classItems () {
         if (this.$store.state.classes === null) return null;
-        return this.$store.state.classes.map((item) => ({
-          value: item.value,
-          name: item.name,
-          to: `/optivum/${encodeURIComponent(this.$route.params.url)}/class/${item.value}`,
-        }));
+        if (!this.selection) return null;
+        if (this.selection.type === 'optivum') {
+          return this.$store.state.classes.map((item) => ({
+            value: item.value,
+            name: item.name,
+            to: `/optivum/${encodeURIComponent(this.selection.url)}/class/${item.value}`,
+          }));
+        } if (this.selection.type === 'v-lo') {
+          return this.$store.state.classes.map((item) => ({
+            value: item.value,
+            name: item.name,
+            to: `/v-lo/class/${item.value}`,
+          }));
+        }
+        return null;
       },
       redirect () {
-        if (
-          this.$route.params.url && !this.$route.params.class && this.$store.state.classes !== null
-        ) return `/optivum/${encodeURIComponent(this.$route.params.url)}/class/${this.$store.state.classes[0].value}`;
+        if (this.selection !== null && this.selection.class === null && this.$store.state.classes !== null) {
+          if (this.selection.type === 'optivum') return `/optivum/${encodeURIComponent(this.$route.params.url)}/class/${this.$store.state.classes[0].value}`;
+          if (this.selection.type === 'v-lo') return `/v-lo/class/${this.$store.state.classes[0].value}`;
+        }
+        return null;
+      },
+      selection () {
+        if (this.$route.matched.some((match) => match.meta.type === 'optivum')) {
+          return {
+            type: 'optivum',
+            url: this.$route.params.url,
+            class: this.$route.params.class || null,
+          };
+        }
+        if (this.$route.matched.some((match) => match.meta.type === 'v-lo')) {
+          return {
+            type: 'v-lo',
+            class: this.$route.params.class || null,
+          };
+        }
         return null;
       },
     },
@@ -127,12 +154,18 @@
         },
         immediate: true,
       },
-      '$route.params.url': {
-        async handler (value) {
-          if (value) {
-            await this.loadURL(value);
-          } else {
-            this.$store.commit('setClasses', null);
+      selection: {
+        async handler (value, oldValue) {
+          try {
+            if (value) {
+              if (oldValue && (value.type === oldValue.type && value.url === oldValue.url)) return;
+              if (value.type === 'optivum') await this.loadOptivum(value.url);
+              else if (value.type === 'v-lo') await this.loadVLo();
+            } else {
+              this.$store.commit('setClasses', null);
+            }
+          } catch (error) {
+            console.error(error);
           }
         },
         immediate: true,
@@ -145,7 +178,7 @@
       },
     },
     methods: {
-      async loadURL (url) {
+      async loadOptivum (url) {
         this.schoolLoading = true;
         try {
           this.$store.commit('setClasses', null);
@@ -163,6 +196,24 @@
           await this.$store.dispatch('addHistoryEntry', { url, name: timetable.getTitle() });
         } catch (error) {
           await this.$router.push('/');
+          this.schoolLoading = false;
+          throw error;
+        }
+      },
+      async loadVLo () {
+        this.schoolLoading = true;
+        try {
+          this.$store.commit('setClasses', null);
+
+          const response = await ky.get('https://sabat.dev/api/cla');
+          const data = await response.json();
+          this.$store.commit('setClasses', data.resp.map((value) => ({
+            name: value,
+            value,
+          })));
+
+          this.schoolLoading = false;
+        } catch (error) {
           this.schoolLoading = false;
           throw error;
         }

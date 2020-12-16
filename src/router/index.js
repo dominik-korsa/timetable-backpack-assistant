@@ -10,9 +10,27 @@ const routes = [
   },
   {
     path: '/optivum/:url',
+    meta: {
+      type: 'optivum',
+    },
   },
   {
     path: '/optivum/:url/class/:class',
+    meta: {
+      type: 'optivum',
+    },
+  },
+  {
+    path: '/v-lo',
+    meta: {
+      type: 'v-lo',
+    },
+  },
+  {
+    path: '/v-lo/class/:class',
+    meta: {
+      type: 'v-lo',
+    },
   },
   {
     path: '*',

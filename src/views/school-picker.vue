@@ -57,6 +57,41 @@
           </template>
         </v-form>
       </v-card>
+      <v-menu
+        open-on-hover
+        :open-on-click="false"
+        :close-on-content-click="false"
+        bottom
+        offset-y
+        :nudge-bottom="10"
+        :nudge-left="50"
+        :open-delay="100"
+        :close-delay="100"
+      >
+        <template #activator="{ on }">
+          <v-card
+            color="#852439"
+            outlined
+            to="/v-lo"
+            class="mt-8 mx-auto"
+            max-width="250"
+            dark
+            v-on="on"
+          >
+            <v-card-title class="pb-0 mb-0">
+              V LO w Krakowie
+            </v-card-title>
+            <v-img src="@/assets/v-lo.png" />
+          </v-card>
+        </template>
+        <v-card max-width="350">
+          <v-card-text>
+            <p>Plan V Liceum Ogólnokształcącego im. Augusta Witkowskiego w Krakowie</p>
+            <a href="https://github.com/Cloud11665/sabat.dev">API rozkładu zajęć</a>
+            by <a href="https://github.com/Cloud11665">Cloud11665</a>
+          </v-card-text>
+        </v-card>
+      </v-menu>
     </v-container>
   </v-main>
 </template>
