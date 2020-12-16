@@ -70,7 +70,7 @@
               }"
             >
               <v-sheet
-                v-if="group.color && $store.state.storage.subjectColors"
+                v-if="group.color && storage.subjectColors"
                 outlined
                 rounded
                 class="overflow-hidden"
@@ -89,8 +89,19 @@
                 {{ group.subject }}
               </div>
               <div>
-                <span class="text-body-2">{{ group.room }}</span>
-                <span class="text-body-2 font-weight-light"> {{ group.groupName }}</span>
+                <span
+                  v-if="storage.showRoom && storage.showRoom"
+                  class="text-body-2 mx-1"
+                >{{ group.room }}</span>
+                <span
+                  v-if="storage.showGroupName && group.groupName"
+                  class="text-body-2 font-weight-light mx-1"
+                >{{ group.groupName }}</span>
+                <br v-if="storage.showRoom && storage.showGroupName && storage.showTeacher && group.teacher">
+                <span
+                  v-if="storage.showTeacher && group.teacher"
+                  class="text-body-2 font-weight-light mx-1"
+                >{{ group.teacher }}</span>
               </div>
             </div>
           </div>
@@ -105,6 +116,7 @@
   import { Table } from '@wulkanowy/timetable-parser';
   import { Scroll } from 'vuetify/lib/directives';
   import _ from 'lodash';
+  import { mapState } from 'vuex';
 
   const vLoHours = [
     { number: 0, timeFrom: '7:10', timeTo: '7:55' },
@@ -135,6 +147,9 @@
       gridOffsetLeft: 0,
     }),
     computed: {
+      ...mapState({
+        storage: 'storage',
+      }),
       lessonsArray () {
         if (this.days === null) return null;
 
@@ -328,7 +343,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 48px;
+    min-height: 32px;
     padding: 4px 8px;
     box-sizing: border-box;
 

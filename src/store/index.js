@@ -16,22 +16,20 @@ export default new Vuex.Store({
       dark: false,
       history: [],
       subjectColors: false,
+      showRoom: true,
+      showGroupName: true,
+      showTeacher: false,
     },
     classes: null,
   },
   mutations: {
-    setDark (state, dark) {
-      state.storage.dark = dark;
-    },
-    setHistory (state, history) {
-      state.storage.history = history;
-    },
-    setClasses (state, classes) {
-      state.classes = classes;
-    },
-    setSubjectColors (state, enable) {
-      state.storage.subjectColors = enable;
-    },
+    setDark (state, dark) { state.storage.dark = dark; },
+    setHistory (state, history) { state.storage.history = history; },
+    setClasses (state, classes) { state.classes = classes; },
+    setSubjectColors (state, enable) { state.storage.subjectColors = enable; },
+    setShowRoom (state, show) { state.storage.showRoom = show; },
+    setShowGroupName (state, show) { state.storage.showGroupName = show; },
+    setShowTeacher (state, show) { state.storage.showTeacher = show; },
   },
   actions: {
     addHistoryEntry ({ commit, state }, { url, name }) {

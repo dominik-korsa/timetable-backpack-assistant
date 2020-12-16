@@ -1,5 +1,5 @@
 <template>
-  <v-card class="pb-6">
+  <v-card>
     <v-card-title>
       Opcje
     </v-card-title>
@@ -28,10 +28,28 @@
         Ciemny
       </v-btn>
     </v-btn-toggle>
+    <v-divider class="mt-5" />
+    <v-switch
+      v-model="showRoom"
+      label="Pokaż number sali"
+      class="mx-4"
+      hide-details
+    />
+    <v-switch
+      v-model="showGroupName"
+      label="Pokaż grupę"
+      class="mx-4"
+      hide-details
+    />
+    <v-switch
+      v-model="showTeacher"
+      label="Pokaż nauczyciela"
+      class="mx-4"
+      hide-details
+    />
     <v-switch
       v-model="subjectColors"
       label="Kolory przedmiotów (tylko V LO)"
-      hide-details
       class="mx-4"
     />
   </v-card>
@@ -50,12 +68,20 @@
         },
       },
       subjectColors: {
-        get () {
-          return this.$store.state.storage.subjectColors;
-        },
-        set (value) {
-          this.$store.commit('setSubjectColors', value);
-        },
+        get () { return this.$store.state.storage.subjectColors; },
+        set (value) { this.$store.commit('setSubjectColors', value); },
+      },
+      showRoom: {
+        get () { return this.$store.state.storage.showRoom; },
+        set (value) { this.$store.commit('setShowRoom', value); },
+      },
+      showGroupName: {
+        get () { return this.$store.state.storage.showGroupName; },
+        set (value) { this.$store.commit('setShowGroupName', value); },
+      },
+      showTeacher: {
+        get () { return this.$store.state.storage.showTeacher; },
+        set (value) { this.$store.commit('setShowTeacher', value); },
       },
     },
   };
