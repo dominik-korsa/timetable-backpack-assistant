@@ -326,6 +326,7 @@
     grid-template-columns: 1fr auto 2fr;
     grid-template-rows: 1fr auto 1fr;
     transition: box-shadow 300ms;
+    z-index: 1;
 
     &__part {
       padding: 0 6px;
