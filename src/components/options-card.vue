@@ -8,6 +8,7 @@
     <v-btn-toggle
       v-model="dark"
       class="d-flex mx-4"
+      mandatory
     >
       <v-btn
         class="grow"

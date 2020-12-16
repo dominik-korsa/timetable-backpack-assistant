@@ -32,8 +32,8 @@
               </v-btn>
             </div>
           </v-card-text>
-          <v-divider />
           <template v-if="history.length > 0">
+            <v-divider />
             <v-subheader>
               Ostatnie połączenia
             </v-subheader>
