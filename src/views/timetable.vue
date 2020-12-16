@@ -44,34 +44,41 @@
             {{ hour.timeTo }}
           </div>
         </v-sheet>
-        <div
+        <v-sheet
           v-for="(lesson, index) in lessonsArray"
           :key="`${index}-lesson`"
-          class="lesson"
+          class="lesson d-flex flex-column"
+          outlined
           :style="{
             'grid-row': lesson.hourIndex + 1,
             'grid-column': lesson.dayIndex + 2
           }"
         >
-          <v-sheet
+          <div
             v-for="(group, groupIndex) in lesson.groups"
             :key="`${index}-${groupIndex}-lesson-group`"
-            class="group"
-            outlined
-            :class="{
-              new: isNew(lesson.dayIndex, group.subject),
-              last: isLast(lesson.dayIndex, group.subject),
-            }"
+            class="d-flex flex-column grow"
           >
-            <div class="text-body-1">
-              {{ group.subject }}
+            <v-divider v-if="groupIndex > 0" />
+            <div
+              class="group"
+              :class="{
+                'first-item': groupIndex === 0,
+                'last-item': groupIndex === lesson.groups.length - 1,
+                new: isNew(lesson.dayIndex, group.subject),
+                last: isLast(lesson.dayIndex, group.subject),
+              }"
+            >
+              <div class="text-body-1">
+                {{ group.subject }}
+              </div>
+              <div>
+                <span class="text-body-2">{{ group.room }}</span>
+                <span class="text-body-2 font-weight-light"> {{ group.groupName }}</span>
+              </div>
             </div>
-            <div>
-              <span class="text-body-2">{{ group.room }}</span>
-              <span class="text-body-2 font-weight-light"> {{ group.groupName }}</span>
-            </div>
-          </v-sheet>
-        </div>
+          </div>
+        </v-sheet>
       </div>
     </v-container>
   </v-main>
@@ -99,11 +106,13 @@
 
         this.days.forEach((day, dayIndex) => {
           day.forEach((groups, hourIndex) => {
-            lessonsArray.push({
-              dayIndex,
-              hourIndex,
-              groups,
-            });
+            if (groups.length > 0) {
+              lessonsArray.push({
+                dayIndex,
+                hourIndex,
+                groups,
+              });
+            }
           });
         });
 
@@ -225,9 +234,9 @@
   }
 
   .lesson {
-    display: flex;
-    flex-direction: column;
     box-sizing: border-box;
+    margin: 4px;
+    border-radius: 4px;
   }
 
   .group {
@@ -236,9 +245,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin: 4px;
     min-height: 48px;
-    border-radius: 4px;
     padding: 4px 8px;
     box-sizing: border-box;
 
@@ -248,6 +255,16 @@
 
     &.last {
       border-right: 2px solid #f44336;
+    }
+
+    &.first-item {
+      border-top-left-radius: 3px;
+      border-top-right-radius: 3px;
+    }
+
+    &.last-item {
+      border-bottom-left-radius: 3px;
+      border-bottom-right-radius: 3px;
     }
   }
 
