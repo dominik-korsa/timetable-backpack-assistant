@@ -60,50 +60,59 @@
             class="d-flex flex-column grow text-center"
           >
             <v-divider v-if="groupIndex > 0" />
-            <div
-              class="group"
-              :class="{
-                'first-item': groupIndex === 0,
-                'last-item': groupIndex === lesson.groups.length - 1,
-                new: isNew(lesson.dayIndex, group.subject, group.groupName),
-                last: isLast(lesson.dayIndex, group.subject, group.groupName),
-              }"
+            <group-info
+              :hour="hours[lesson.hourIndex]"
+              :group="group"
+              :day-index="lesson.dayIndex"
             >
-              <v-sheet
-                v-if="group.color && storage.subjectColors"
-                outlined
-                rounded
-                class="overflow-hidden"
-              >
-                <div
-                  class="px-1 text-body-1 group__colored-subject"
-                  :style="`--bg-color: ${group.color.bg}; --text-color: ${group.color.text}`"
+              <template #activator="{ on }">
+                <v-card
+                  class="group"
+                  :class="{
+                    'first-item': groupIndex === 0,
+                    'last-item': groupIndex === lesson.groups.length - 1,
+                    new: group.new,
+                    last: group.last,
+                  }"
+                  v-on="on"
                 >
-                  {{ group.subject }}
-                </div>
-              </v-sheet>
-              <div
-                v-else
-                class="text-body-1"
-              >
-                {{ group.subject }}
-              </div>
-              <div>
-                <span
-                  v-if="storage.showRoom && storage.showRoom"
-                  class="text-body-2 mx-1"
-                >{{ group.room }}</span>
-                <span
-                  v-if="storage.showGroupName && group.groupName"
-                  class="text-body-2 font-weight-light mx-1"
-                >{{ group.groupName }}</span>
-                <br v-if="storage.showRoom && storage.showGroupName && storage.showTeacher && group.teacher">
-                <span
-                  v-if="storage.showTeacher && group.teacher"
-                  class="text-body-2 font-weight-light mx-1"
-                >{{ group.teacher }}</span>
-              </div>
-            </div>
+                  <v-sheet
+                    v-if="group.color && storage.subjectColors"
+                    outlined
+                    rounded
+                    class="overflow-hidden"
+                  >
+                    <div
+                      class="px-1 text-body-1 group__colored-subject"
+                      :style="`--bg-color: ${group.color.bg}; --text-color: ${group.color.text}`"
+                    >
+                      {{ group.subject }}
+                    </div>
+                  </v-sheet>
+                  <div
+                    v-else
+                    class="text-body-1"
+                  >
+                    {{ group.subject }}
+                  </div>
+                  <div>
+                    <span
+                      v-if="storage.showRoom && storage.showRoom"
+                      class="text-body-2 mx-1"
+                    >{{ group.room }}</span>
+                    <span
+                      v-if="storage.showGroupName && group.groupName"
+                      class="text-body-2 font-weight-light mx-1"
+                    >{{ group.groupName }}</span>
+                    <br v-if="storage.showRoom && storage.showGroupName && storage.showTeacher && group.teacher">
+                    <span
+                      v-if="storage.showTeacher && group.teacher"
+                      class="text-body-2 font-weight-light mx-1"
+                    >{{ group.teacher }}</span>
+                  </div>
+                </v-card>
+              </template>
+            </group-info>
           </div>
         </v-sheet>
       </div>
@@ -117,6 +126,7 @@
   import { Scroll } from 'vuetify/lib/directives';
   import _ from 'lodash';
   import { mapState } from 'vuex';
+  import GroupInfo from '@/components/group-info.vue';
 
   const vLoHours = [
     { number: 0, timeFrom: '7:10', timeTo: '7:55' },
@@ -133,6 +143,7 @@
   ];
 
   export default {
+    components: { GroupInfo },
     directives: {
       Scroll,
     },
@@ -161,7 +172,17 @@
               lessonsArray.push({
                 dayIndex,
                 hourIndex,
-                groups,
+                groups: groups.map((group) => {
+                  const nextDayDistance = this.nextDayDistance(dayIndex, group.subject, group.groupName);
+                  const prevDayDistance = this.prevDayDistance(dayIndex, group.subject, group.groupName);
+                  return ({
+                    nextDayDistance,
+                    prevDayDistance,
+                    new: prevDayDistance !== 1,
+                    last: nextDayDistance !== 1,
+                    ...group,
+                  });
+                }),
               });
             }
           });
@@ -237,23 +258,29 @@
         });
         return lessons;
       },
-      isNew (day, subject, groupName) {
-        let isNew = true;
-        this.days[(day + this.days.length - 1) % this.days.length].forEach((lesson) => {
-          if (lesson.findIndex(
-            (group) => group.subject === subject && (!group.groupName || !groupName || group.groupName === groupName),
-          ) !== -1) isNew = false;
-        });
-        return isNew;
+      nextDayDistance (day, subject, groupName) {
+        for (let i = 1; i < this.days.length; i += 1) {
+          let found = false;
+          this.days[(day + i) % this.days.length].forEach((lesson) => {
+            if (lesson.findIndex(
+              (group) => group.subject === subject && (!group.groupName || !groupName || group.groupName === groupName),
+            ) !== -1) found = true;
+          });
+          if (found) return i;
+        }
+        return 0;
       },
-      isLast (day, subject, groupName) {
-        let isLast = true;
-        this.days[(day + 1) % this.days.length].forEach((lesson) => {
-          if (lesson.findIndex(
-            (group) => group.subject === subject && (!group.groupName || !groupName || group.groupName === groupName),
-          ) !== -1) isLast = false;
-        });
-        return isLast;
+      prevDayDistance (day, subject, groupName) {
+        for (let i = 1; i < this.days.length; i += 1) {
+          let found = false;
+          this.days[(day - i + this.days.length) % this.days.length].forEach((lesson) => {
+            if (lesson.findIndex(
+              (group) => group.subject === subject && (!group.groupName || !groupName || group.groupName === groupName),
+            ) !== -1) found = true;
+          });
+          if (found) return i;
+        }
+        return 0;
       },
       onGridScroll (event) {
         this.gridOffsetLeft = event.target.scrollLeft;
@@ -346,6 +373,7 @@
     min-height: 32px;
     padding: 4px 8px;
     box-sizing: border-box;
+    border-radius: 0 !important;
 
     .group__colored-subject {
       background-color: var(--bg-color);
@@ -361,13 +389,13 @@
     }
 
     &.first-item {
-      border-top-left-radius: 3px;
-      border-top-right-radius: 3px;
+      border-top-left-radius: 3px !important;
+      border-top-right-radius: 3px !important;
     }
 
     &.last-item {
-      border-bottom-left-radius: 3px;
-      border-bottom-right-radius: 3px;
+      border-bottom-left-radius: 3px !important;
+      border-bottom-right-radius: 3px !important;
     }
   }
 
