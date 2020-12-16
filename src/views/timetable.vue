@@ -74,6 +74,7 @@
                     new: group.new,
                     last: group.last,
                   }"
+                  flat
                   v-on="on"
                 >
                   <v-sheet
