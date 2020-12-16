@@ -184,17 +184,14 @@
           // https://github.com/Cloud11665/sabat.dev/issues/5
           this.hours = vLoHours;
           this.days = data.resp.map(this.mapVLoDay);
-          console.log(data);
         } catch (error) {
           console.warn(error);
         }
       },
       mapVLoDay (respDay) {
         const lessons = _.times(vLoHours.length, () => []);
-        console.log(respDay.flat());
         respDay.flat().forEach((respLesson) => {
           for (let i = 0; i < respLesson.duration; i += 1) {
-            console.log(respLesson.time_index + i, respLesson);
             lessons[respLesson.time_index + i].push({
               room: respLesson.classroom,
               subject: respLesson.subject,
