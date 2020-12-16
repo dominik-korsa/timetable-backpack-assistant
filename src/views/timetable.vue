@@ -54,7 +54,7 @@
             'grid-column': lesson.dayIndex + 2
           }"
         >
-          <div
+          <v-card
             v-for="(group, groupIndex) in lesson.groups"
             :key="`${index}-${groupIndex}-lesson-group`"
             class="d-flex flex-column grow text-center"
@@ -66,7 +66,7 @@
               :day-index="lesson.dayIndex"
             >
               <template #activator="{ on }">
-                <div
+                <v-card
                   class="group"
                   :class="{
                     'first-item': groupIndex === 0,
@@ -110,10 +110,10 @@
                       class="text-body-2 font-weight-light mx-1"
                     >{{ group.teacher }}</span>
                   </div>
-                </div>
+                </v-card>
               </template>
             </group-info>
-          </div>
+          </v-card>
         </v-sheet>
       </div>
     </v-container>
