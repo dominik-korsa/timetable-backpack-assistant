@@ -54,7 +54,7 @@
             'grid-column': lesson.dayIndex + 2
           }"
         >
-          <v-card
+          <div
             v-for="(group, groupIndex) in lesson.groups"
             :key="`${index}-${groupIndex}-lesson-group`"
             class="d-flex flex-column grow text-center"
@@ -114,7 +114,7 @@
                 </v-card>
               </template>
             </group-info>
-          </v-card>
+          </div>
         </v-sheet>
       </div>
     </v-container>
