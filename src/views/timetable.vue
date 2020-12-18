@@ -14,7 +14,10 @@
         :size="96"
       />
     </div>
-    <v-container v-else>
+    <v-container
+      v-else
+      class="timetable-container"
+    >
       <div
         id="grid"
         v-scroll:#grid="onGridScroll"
@@ -405,7 +408,11 @@
 </script>
 
 <style lang="scss">
-  #grid {
+  .timetable-container {
+    max-width: 1400px;
+  }
+
+#grid {
     display: grid;
     overflow: auto;
     grid-template-columns: auto;
