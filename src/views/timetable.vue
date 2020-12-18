@@ -45,7 +45,7 @@
           </div>
         </v-sheet>
         <v-sheet
-          v-for="(lesson, index) in lessonsArray"
+          v-for="(lesson, index) in lessonsArrayWithExpanded"
           :key="`${index}-lesson`"
           class="lesson d-flex flex-column"
           outlined
@@ -54,67 +54,117 @@
             'grid-column': lesson.dayIndex + 2
           }"
         >
-          <div
-            v-for="(group, groupIndex) in lesson.groups"
-            :key="`${index}-${groupIndex}-lesson-group`"
-            class="d-flex flex-column grow text-center"
-          >
-            <v-divider v-if="groupIndex > 0" />
-            <group-info
-              :hour="hours[lesson.hourIndex]"
-              :group="group"
-              :day-index="lesson.dayIndex"
+          <template v-for="(item, itemIndex) in lesson.items">
+            <div
+              v-if="item.groups.length > 1"
+              :key="`${index}-${itemIndex}-lesson-group`"
+              class="d-flex flex-column grow no-basis"
             >
-              <template #activator="{ on }">
-                <v-card
-                  class="group"
-                  :class="{
-                    'first-item': groupIndex === 0,
-                    'last-item': groupIndex === lesson.groups.length - 1,
-                    new: group.new,
-                    last: group.last,
-                  }"
-                  flat
-                  v-on="on"
+              <v-divider v-if="itemIndex > 0" />
+              <v-card
+                flat
+                class="combined-group overflow-hidden grow d-flex flex-column"
+                :class="{
+                  'first-item': itemIndex === 0,
+                  'last-item': itemIndex === lesson.items.length - 1,
+                  'new': item.newCount > 0,
+                  'new--partial': item.newCount < item.groups.length,
+                  'last': item.lastCount > 0,
+                  'last--partial': item.lastCount < item.groups.length,
+                }"
+                @click="toggleExpanded(item.tempId)"
+              >
+                <div
+                  v-if="storage.subjectColors"
+                  class="d-flex pl-1 mt-1"
                 >
                   <v-sheet
-                    v-if="group.color && storage.subjectColors"
-                    outlined
+                    v-for="color in item.colors"
+                    :key="color"
                     rounded
-                    class="overflow-hidden"
+                    class="grow mr-1 overflow-hidden"
+                    outlined
+                    height="6"
                   >
-                    <div
-                      class="px-1 text-body-1 group__colored-subject"
-                      :style="`--bg-color: ${group.color.bg}; --text-color: ${group.color.text}`"
-                    >
-                      {{ group.subject }}
-                    </div>
+                    <v-sheet
+                      :color="color"
+                      class="fill-height"
+                    />
+                  </v-sheet>
+                </div>
+                <v-spacer />
+                <div
+                  class="d-flex align-center"
+                >
+                  <v-sheet
+                    rounded
+                    outlined
+                    class="mx-1 px-1"
+                  >
+                    {{ item.groups.length }}
                   </v-sheet>
                   <div
-                    v-else
-                    class="text-body-1"
+                    class="text-center mx-1 py-1 text-body-1 grow no-basis"
                   >
-                    {{ group.subject }}
+                    {{ item.subject }}
                   </div>
-                  <div>
-                    <span
-                      v-if="storage.showRoom && storage.showRoom"
-                      class="text-body-2 mx-1"
-                    >{{ group.room }}</span>
-                    <span
-                      v-if="storage.showGroupName && group.groupName"
-                      class="text-body-2 font-weight-light mx-1"
-                    >{{ group.groupName }}</span>
-                    <br v-if="storage.showRoom && storage.showGroupName && storage.showTeacher && group.teacher">
-                    <span
-                      v-if="storage.showTeacher && group.teacher"
-                      class="text-body-2 font-weight-light mx-1"
-                    >{{ group.teacher }}</span>
+                  <v-icon
+                    class="mx-1 rotating-icon"
+                    :class="{
+                      'rotating-icon--active': item.expanded,
+                    }"
+                  >
+                    mdi-menu-down
+                  </v-icon>
+                </div>
+                <v-spacer />
+              </v-card>
+              <v-expand-transition>
+                <div v-show="item.expanded">
+                  <div
+                    v-for="(group, groupIndex) in item.groups"
+                    :key="`${index}-${itemIndex}-${groupIndex}-lesson-group-item`"
+                  >
+                    <v-divider />
+                    <group-info
+                      :hour="hours[lesson.hourIndex]"
+                      :group="group"
+                      :day-index="lesson.dayIndex"
+                    >
+                      <template #activator="{ on }">
+                        <nested-lesson-group
+                          :on="on"
+                          :group="group"
+                          :last-item="itemIndex === lesson.items.length - 1 && groupIndex === item.groups.length - 1"
+                        />
+                      </template>
+                    </group-info>
                   </div>
-                </v-card>
-              </template>
-            </group-info>
-          </div>
+                </div>
+              </v-expand-transition>
+            </div>
+            <div
+              v-else
+              :key="`${index}-${itemIndex}-lesson-group`"
+              class="d-flex flex-column grow text-center"
+            >
+              <v-divider v-if="itemIndex > 0" />
+              <group-info
+                :hour="hours[lesson.hourIndex]"
+                :group="item.groups[0]"
+                :day-index="lesson.dayIndex"
+              >
+                <template #activator="{ on }">
+                  <lesson-group
+                    :on="on"
+                    :group="item.groups[0]"
+                    :first-item="itemIndex === 0"
+                    :last-item="itemIndex === lesson.items.length - 1"
+                  />
+                </template>
+              </group-info>
+            </div>
+          </template>
         </v-sheet>
       </div>
     </v-container>
@@ -128,6 +178,8 @@
   import _ from 'lodash';
   import { mapState } from 'vuex';
   import GroupInfo from '@/components/group-info.vue';
+  import LessonGroup from '@/components/lesson-group.vue';
+  import NestedLessonGroup from '@/components/nested-lesson-group.vue';
 
   const vLoHours = [
     { number: 0, timeFrom: '7:10', timeTo: '7:55' },
@@ -144,7 +196,7 @@
   ];
 
   export default {
-    components: { GroupInfo },
+    components: { GroupInfo, LessonGroup, NestedLessonGroup },
     directives: {
       Scroll,
     },
@@ -157,23 +209,50 @@
       hours: null,
       days: null,
       gridOffsetLeft: 0,
+      expandedItems: {},
     }),
     computed: {
       ...mapState({
         storage: 'storage',
       }),
+      // TODO
+      // sameLessonDays () {
+      //   if (this.days === null) return null;
+      //   const lessons = {};
+      //   this.days.forEach((dayLessons, dayIndex) => dayLessons.forEach((groups) => groups.forEach(({ subject, groupName }) => {
+      //     if (!lessons[subject]) lessons[subject] = {};
+      //     const groupFieldName = groupName || 'none';
+      //     if (!lessons[subject][groupFieldName]) lessons[subject][groupFieldName] = new Set([]);
+      //     lessons[subject][groupFieldName].add(dayIndex);
+      //   })));
+      //   return lessons;
+      // },
+      lessonsArrayWithExpanded () {
+        console.log('Update lessons array with expanded');
+        console.time('Update lessons array with expanded');
+        if (this.lessonsArray === null) return null;
+        const l = this.lessonsArray.map((lesson) => ({
+          ...lesson,
+          items: lesson.items.map((item) => ({
+            ...item,
+            expanded: this.expandedItems[item.tempId] === true,
+          })),
+        }));
+        console.timeEnd('Update lessons array with expanded');
+        return l;
+      },
       lessonsArray () {
+        console.log('Update lessons array');
+        console.time('Update lessons array');
         if (this.days === null) return null;
 
         const lessonsArray = [];
 
         this.days.forEach((day, dayIndex) => {
-          day.forEach((groups, hourIndex) => {
-            if (groups.length > 0) {
-              lessonsArray.push({
-                dayIndex,
-                hourIndex,
-                groups: groups.map((group) => {
+          day.forEach((hourGroups, hourIndex) => {
+            if (hourGroups.length > 0) {
+              const groups = hourGroups
+                .map((group) => {
                   const nextDayDistance = this.nextDayDistance(dayIndex, group.subject, group.groupName);
                   const prevDayDistance = this.prevDayDistance(dayIndex, group.subject, group.groupName);
                   return ({
@@ -183,12 +262,38 @@
                     last: nextDayDistance !== 1,
                     ...group,
                   });
-                }),
+                });
+              const items = [];
+              const subjectItems = {};
+              groups.forEach((group) => {
+                let subjectItem = subjectItems[group.subject];
+                if (!subjectItem) {
+                  subjectItem = {
+                    tempId: `${dayIndex}:${hourIndex}:${group.subject}`,
+                    subject: group.subject,
+                    newCount: 0,
+                    lastCount: 0,
+                    colors: [],
+                    groups: [],
+                  };
+                  subjectItems[group.subject] = subjectItem;
+                  items.push(subjectItem);
+                }
+                subjectItem.groups.push(group);
+                if (group.color) subjectItem.colors.push(group.color.bg);
+                if (group.new) subjectItem.newCount += 1;
+                if (group.last) subjectItem.lastCount += 1;
+              });
+              lessonsArray.push({
+                dayIndex,
+                hourIndex,
+                items,
               });
             }
           });
         });
 
+        console.timeEnd('Update lessons array');
         return lessonsArray;
       },
       timeElevation () {
@@ -218,6 +323,7 @@
           const response = await ky.get(fullUrl);
           const body = await response.text();
           const table = new Table(body);
+          this.expandedItems = {};
           this.days = table.getDays();
           this.hours = Object.values(table.getHours());
         } catch (error) {
@@ -235,8 +341,9 @@
 
           // TODO: Integrate API when ready
           // https://github.com/Cloud11665/sabat.dev/issues/5
-          this.hours = vLoHours;
+          this.expandedItems = {};
           this.days = data.resp.map(this.mapVLoDay);
+          this.hours = vLoHours;
         } catch (error) {
           console.warn(error);
         }
@@ -299,6 +406,9 @@
         const L = (0.2126 * c[0]) + (0.7152 * c[1]) + (0.0722 * c[2]);
         return (L > 0.179) ? '#000' : '#fff';
       },
+      toggleExpanded (tempId) {
+        this.$set(this.expandedItems, tempId, !this.expandedItems[tempId]);
+      },
     },
   };
 </script>
@@ -310,6 +420,10 @@
     grid-template-columns: auto;
     grid-auto-columns: minmax(auto, 1fr);
     grid-auto-rows: auto;
+  }
+
+  .no-basis {
+    flex-basis: 0;
   }
 
   .stick-left {
@@ -366,28 +480,23 @@
     border-radius: 4px;
   }
 
-  .group {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 32px;
-    padding: 4px 8px;
-    box-sizing: border-box;
+  .combined-group {
     border-radius: 0 !important;
 
-    .group__colored-subject {
-      background-color: var(--bg-color);
-      color:  var(--text-color);
-    }
-
     &.new {
-      border-left: 2px solid #8bc34a;
+      border-left: 2px solid #8bc34a !important;
+
+      &.new--partial {
+        border-left-style: dotted !important;
+      }
     }
 
     &.last {
-      border-right: 2px solid #f44336;
+      border-right: 2px solid #f44336 !important;
+
+      &.last--partial {
+        border-right-style: dotted !important;
+      }
     }
 
     &.first-item {
@@ -398,6 +507,14 @@
     &.last-item {
       border-bottom-left-radius: 3px !important;
       border-bottom-right-radius: 3px !important;
+    }
+  }
+
+  .rotating-icon {
+    transition: transform 600ms;
+
+    &.rotating-icon--active {
+      transform: rotate(180deg);
     }
   }
 
