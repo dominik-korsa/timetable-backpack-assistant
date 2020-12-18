@@ -181,20 +181,6 @@
   import LessonGroup from '@/components/lesson-group.vue';
   import NestedLessonGroup from '@/components/nested-lesson-group.vue';
 
-  const vLoHours = [
-    { number: 0, timeFrom: '7:10', timeTo: '7:55' },
-    { number: 1, timeFrom: '8:00', timeTo: '8:45' },
-    { number: 2, timeFrom: '9:00', timeTo: '9:45' },
-    { number: 3, timeFrom: '10:00', timeTo: '10:45' },
-    { number: 4, timeFrom: '11:00', timeTo: '11:45' },
-    { number: 5, timeFrom: '12:00', timeTo: '12:45' },
-    { number: 6, timeFrom: '13:00', timeTo: '13:45' },
-    { number: 7, timeFrom: '14:00', timeTo: '14:45' },
-    { number: 8, timeFrom: '14:50', timeTo: '15:35' },
-    { number: 9, timeFrom: '15:40', timeTo: '16:25' },
-    { number: 10, timeFrom: '16:30', timeTo: '17:15' },
-  ];
-
   export default {
     components: { GroupInfo, LessonGroup, NestedLessonGroup },
     directives: {
@@ -336,20 +322,25 @@
 
         try {
           const fullUrl = `https://sabat.dev/api/tta?c=${selection.class}`;
-          const response = await ky.get(fullUrl);
-          const data = await response.json();
+          const timetableResponse = await ky.get(fullUrl);
+          const timetableData = await timetableResponse.json();
 
-          // TODO: Integrate API when ready
-          // https://github.com/Cloud11665/sabat.dev/issues/5
+          const hoursResponse = await ky.get('https://sabat.dev/api/tim');
+          const hoursData = await hoursResponse.json();
+
           this.expandedItems = {};
-          this.days = data.resp.map(this.mapVLoDay);
-          this.hours = vLoHours;
+          this.hours = Object.entries(hoursData.resp).map(([index, respHour]) => ({
+            number: parseInt(index, 10),
+            timeFrom: respHour.BEGIN,
+            timeTo: respHour.END,
+          }));
+          this.days = timetableData.resp.map((day) => this.mapVLoDay(day, this.hours.length));
         } catch (error) {
           console.warn(error);
         }
       },
-      mapVLoDay (respDay) {
-        const lessons = _.times(vLoHours.length, () => []);
+      mapVLoDay (respDay, number) {
+        const lessons = _.times(number, () => []);
         respDay.flat().forEach((respLesson) => {
           for (let i = 0; i < respLesson.duration; i += 1) {
             lessons[respLesson.time_index + i].push({
