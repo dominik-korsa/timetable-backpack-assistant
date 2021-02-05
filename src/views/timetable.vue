@@ -69,7 +69,7 @@
                 class="combined-group overflow-hidden grow d-flex flex-column"
                 :class="{
                   'first-item': itemIndex === 0,
-                  'last-item': itemIndex === lesson.items.length - 1,
+                  'last-item': itemIndex === lesson.items.length - 1 && !item.expanded,
                   'new': item.newCount > 0,
                   'new--partial': item.newCount < item.groups.length,
                   'last': item.lastCount > 0,
