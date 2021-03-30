@@ -207,11 +207,10 @@
         this.schoolLoading = true;
         try {
           this.$store.commit('setClasses', null);
-          const timetableResponse = await ky.get(`https://cors-anywhere.herokuapp.com/${url}`);
+          const timetableResponse = await ky.get(new URL(`/${url}`, process.env.VUE_APP_PROXY_URL));
           const timetable = new Timetable(await timetableResponse.text());
 
-          const fullUrl = `https://cors-anywhere.herokuapp.com/${new URL(timetable.getListPath(), url).toString()}`;
-          const response = await ky.get(fullUrl);
+          const response = await ky.get(new URL(`/${new URL(timetable.getListPath(), url).toString()}`, process.env.VUE_APP_PROXY_URL));
           const tableList = new TimetableList(await response.text());
           const { classes } = tableList.getList();
           this.$store.commit('setClasses', classes);

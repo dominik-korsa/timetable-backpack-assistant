@@ -308,7 +308,7 @@
 
         try {
           const classUrl = new URL(`plany/o${selection.class}.html`, selection.url).toString();
-          const fullUrl = `https://cors-anywhere.herokuapp.com/${classUrl}`;
+          const fullUrl = new URL(`/${classUrl}`, process.env.VUE_APP_PROXY_URL);
           const response = await ky.get(fullUrl);
           const body = await response.text();
           const table = new Table(body);
