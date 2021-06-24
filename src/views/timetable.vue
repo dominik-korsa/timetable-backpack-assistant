@@ -324,20 +324,20 @@
         this.days = null;
 
         try {
-          const fullUrl = `https://sabat.dev/api/tta?c=${selection.class}`;
+          const fullUrl = `https://api.cld.sh/vlo/ttdata/${selection.class}?offset=0`;
           const timetableResponse = await ky.get(fullUrl);
           const timetableData = await timetableResponse.json();
 
-          const hoursResponse = await ky.get('https://sabat.dev/api/tim');
+          const hoursResponse = await ky.get('https://api.cld.sh/vlo/timestamps');
           const hoursData = await hoursResponse.json();
 
           this.expandedItems = {};
-          this.hours = Object.entries(hoursData.resp).map(([index, respHour]) => ({
+          this.hours = Object.entries(hoursData).map(([index, respHour]) => ({
             number: parseInt(index, 10),
-            timeFrom: respHour.BEGIN,
-            timeTo: respHour.END,
+            timeFrom: respHour.begin,
+            timeTo: respHour.end,
           }));
-          this.days = timetableData.resp.map((day) => this.mapVLoDay(day, this.hours.length));
+          this.days = timetableData.map((day) => this.mapVLoDay(day, this.hours.length));
         } catch (error) {
           console.warn(error);
         }
