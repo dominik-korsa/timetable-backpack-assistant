@@ -32,7 +32,7 @@
     <v-divider class="mt-5" />
     <v-switch
       v-model="showRoom"
-      label="Pokaż number sali"
+      label="Pokaż numer sali"
       class="mx-4"
       hide-details
     />
