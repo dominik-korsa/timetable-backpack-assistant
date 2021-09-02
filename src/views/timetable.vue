@@ -329,7 +329,7 @@
           const timetableData = await timetableResponse.json();
 
           const hoursResponse = await ky.get('https://api.cld.sh/vlo/timestamps');
-          const hoursData = await hoursResponse.json();
+          const hoursData = JSON.parse(await hoursResponse.json());
 
           this.expandedItems = {};
           this.hours = Object.entries(hoursData).map(([index, respHour]) => ({
