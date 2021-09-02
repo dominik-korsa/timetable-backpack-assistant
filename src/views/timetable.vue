@@ -78,7 +78,7 @@
                 @click="toggleExpanded(item.tempId)"
               >
                 <div
-                  v-if="storage.subjectColors"
+                  v-if="storage.subjectColors && item.colors.length > 0"
                   class="d-flex pl-1 mt-1"
                 >
                   <v-sheet
