@@ -128,7 +128,9 @@
     computed: {
       timetableTitle () {
         if (this.selection.class === null || this.$store.state.classes === null) return 'Plan lekcji';
-        return this.$store.state.classes.find((item) => item.value === this.selection.class).name;
+        const classItem = this.$store.state.classes.find((item) => item.value === this.selection.class);
+        if (classItem === undefined) return 'Nie znaleziono klasy';
+        return classItem.name;
       },
       classItems () {
         if (this.$store.state.classes === null) return null;

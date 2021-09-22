@@ -82,8 +82,8 @@
                   class="d-flex pl-1 mt-1"
                 >
                   <v-sheet
-                    v-for="color in item.colors"
-                    :key="color"
+                    v-for="(color, i) in item.colors"
+                    :key="i"
                     rounded
                     class="grow mr-1 overflow-hidden"
                     outlined
@@ -329,7 +329,7 @@
           const timetableData = await timetableResponse.json();
 
           const hoursResponse = await ky.get('https://api.cld.sh/vlo/timestamps');
-          const hoursData = JSON.parse(await hoursResponse.json());
+          const hoursData = await hoursResponse.json();
 
           this.expandedItems = {};
           this.hours = Object.entries(hoursData).map(([index, respHour]) => ({
