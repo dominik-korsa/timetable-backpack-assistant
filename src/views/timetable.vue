@@ -325,11 +325,10 @@
 
         try {
           const fullUrl = `https://api.cld.sh/vlo/ttdata/${selection.class}?offset=0`;
-          const timetableResponse = await ky.get(fullUrl);
-          const timetableData = await timetableResponse.json();
-
-          const hoursResponse = await ky.get('https://api.cld.sh/vlo/timestamps');
-          const hoursData = await hoursResponse.json();
+          const [timetableData, hoursData] = await Promise.all([
+            ky.get(fullUrl).json(),
+            ky.get('https://api.cld.sh/vlo/timestamps').json(),
+          ]);
 
           this.expandedItems = {};
           this.hours = Object.entries(hoursData).map(([index, respHour]) => ({
