@@ -231,7 +231,7 @@
         try {
           this.$store.commit('setClasses', null);
 
-          const response = await ky.get('https://api.cld.sh/vlo/listclass');
+          const response = await ky.get('https://api.cld.sh/v1/vlo/listclass');
           const data = await response.json();
           this.$store.commit('setClasses', data.map((value) => ({
             name: value,

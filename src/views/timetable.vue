@@ -324,10 +324,10 @@
         this.days = null;
 
         try {
-          const fullUrl = `https://api.cld.sh/vlo/ttdata/${selection.class}?offset=0`;
+          const fullUrl = `https://api.cld.sh/v1/vlo/ttdata/${selection.class}?offset=0`;
           const [timetableData, hoursData] = await Promise.all([
             ky.get(fullUrl).json(),
-            ky.get('https://api.cld.sh/vlo/timestamps').json(),
+            ky.get('https://api.cld.sh/v1/vlo/timestamps').json(),
           ]);
 
           this.expandedItems = {};
